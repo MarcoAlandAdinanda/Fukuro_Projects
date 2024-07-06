@@ -6,8 +6,6 @@
 from pathlib import Path
 MODEL_PATH = Path('../FukuroRegression/models')
 MODEL_PATH.mkdir(parents=True, exist_ok=True)
-# MODEL_NAME = 'ParabolicMirrorModel.pth'
-# MODEL_SAVE_PATH = MODEL_PATH / MODEL_NAME
 DATA_PATH = Path('../FukuroRegression/data')
 DATA_PATH.mkdir(parents=True, exist_ok=True)
 

@@ -33,12 +33,12 @@ def move_tensor_device(X_train, y_train, X_test, y_test, y_preds=None, target=No
         X_test = X_test.to(target)
         y_test = y_test.to(target)
     else:
-        X_train = X_train.cpu().numpy()
-        y_train = y_train.cpu().numpy()
-        X_test = X_test.cpu().numpy()
-        y_test = y_test.cpu().numpy()
+        X_train = X_train.cpu()
+        y_train = y_train.cpu()
+        X_test = X_test.cpu()
+        y_test = y_test.cpu()
         if y_preds is not None: 
-            y_preds = y_preds.cpu().numpy()
+            y_preds = y_preds.cpu()
             return X_train, y_train, X_test, y_test, y_preds
         
     return X_train, y_train, X_test, y_test
