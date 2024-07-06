@@ -10,6 +10,7 @@ The main goal of this repository is to assist in generating mathematical equatio
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Guides](#guides)
+  - [Output](#output)
 
 ## Prerequisites
 Get the data and make it in .csv with column X and y.
@@ -36,3 +37,9 @@ Example:
 ```
     python src/main.py --f input.csv -t parabolic -m training
 ```
+
+## Output 
+Output equation:
+![output_equation](img/output_equation.png)
+Output 3D plot:
+![output_3d_plot](img/output_3d_plot.png)
