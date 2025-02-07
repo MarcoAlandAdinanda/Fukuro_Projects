@@ -1,9 +1,8 @@
 import numpy as np
 import pygame
 import math
-# import matplotlib.pyplot as plt
-# import matplotlib.animation as animation
 
+# mimic another package in fukurobot
 class FukuroBot:
     def __init__(self,
                  pos_x: float = 0.0, 
@@ -27,6 +26,12 @@ class FukuroBot:
         else:
             self.path = path
 
+    # ball behaviour 
+    def set_ball(self):
+        pass
+
+
+# seeker class
 class FukuroSeeker:
     def __init__(self):
         self.position = None
@@ -38,7 +43,6 @@ class FukuroSeeker:
         self.linear_tolerance = 15
         self.angular_tolerance = 10
         self.slowdown_tolerance = 200
-
         self.mass = 30.0 # 1.0  # Mass of the robot
         self.friction_coefficient = 0.002 # 0.02  # Friction coefficient
         self.drag_coefficient = 0.005 # 0.005  # Drag coefficient
@@ -46,6 +50,8 @@ class FukuroSeeker:
         self.path = None
         self.path_length = None
         self.path_idx = None
+
+        self.ball = None
 
         self.target_pos = np.array([0, 0], dtype=float)
         self.target_distance = None
@@ -56,8 +62,9 @@ class FukuroSeeker:
 
         self.motor_speed = None
 
+    # path following
     def seek(self):
-        # Calculate desired velocity
+        # calculate desired velocity
         desired = self.target - self.position
         self.target_distance = self.calculate_distance(desired)
 
@@ -69,22 +76,57 @@ class FukuroSeeker:
         self.steer = desired - self.velocity
         self.steer = self.limit(self.steer, self.maxforce)
 
-        # Apply forces
+        # apply physic forces
         friction = -self.friction_coefficient * self.velocity
         drag = -self.drag_coefficient * np.square(self.velocity)
 
-        # Net force calculation
-        net_force = self.steer + friction + drag
+        net_force = self.steer + friction + drag # net force calculation
 
-        # Update acceleration based on force and mass
+        # update acceleration based on force and mass
         self.acceleration += net_force / self.mass
 
-        # Update velocity and position
+        # update velocity and position
         self.velocity += self.acceleration
         self.velocity = self.limit(self.velocity, self.maxspeed)
         self.position += self.velocity
-        self.acceleration *= 0  # Reset acceleration after applying it
+        self.acceleration *= 0  # reset acceleration after applying it
 
+        # calculate angle difference
+        self.target_angle = self.calculate_angle(self.velocity, self.target-self.position)
+
+        # Update angular velocity   
+        self.angular_velocity = self.target_angle - self.angle_before
+        self.angle_before = self.target_angle
+        # self.angular_velocity = self.target_angle
+
+        self.set_motor_speed()
+
+    # interception controller
+    def seek_interception(self, kp=0.5, kd=0.2):
+        desired = self.ball[0] - self.position[0] # horizontal error
+    
+        desired_derivative = -self.velocity[0] # horizontal rate of change
+
+        control_force = kp * desired + kd * desired_derivative
+        # control_force = np.clip(control_force, -self.maxforce, self.maxforce)
+
+        self.steer = np.array([control_force, 0]) - self.velocity
+        self.steer = self.limit(self.steer, self.maxforce)
+
+        # apply physic forces
+        friction = -self.friction_coefficient * self.velocity
+        drag = -self.drag_coefficient * np.square(self.velocity)
+
+        net_force = self.steer + friction + drag # net force calculation
+
+        # update acceleration based on force and mass
+        self.acceleration += net_force / self.mass
+
+        # update velocity and position
+        self.velocity += self.acceleration
+        self.velocity = self.limit(self.velocity, self.maxspeed)
+        self.position += self.velocity
+        self.acceleration *= 0  # reset acceleration after applying it
 
         # calculate angle difference
         self.target_angle = self.calculate_angle(self.velocity, self.target-self.position)
@@ -119,6 +161,8 @@ class FukuroSeeker:
             if self.motor_speed[i] > self.maxspeed:
                 self.motor_speed[i] = self.maxspeed
             
+    def get_ball(self, ball: np.array):
+        self.ball = ball
 
     def get_path(self, path: np.array):
         self.path = path
@@ -157,14 +201,7 @@ class FukuroSeeker:
 
         return np.degrees(velocity - target)
 
-class Odometry:
-    def __init__(self):
-        pass
-
-    def get_motor_speed(self):
-        pass
-
-
+# pygame simulator
 class Simulator:
     def __init__(self,
                  robot, 
@@ -206,9 +243,6 @@ class Simulator:
         pygame.draw.polygon(self.SCREEN, (127, 127, 127), points)
         pygame.draw.polygon(self.SCREEN, (0, 0, 0), points, 1)
 
-    def draw_odometry(self):
-        pass
-
     def run_simulation(self):
 
         while self.RUNNING:
@@ -238,13 +272,6 @@ class Simulator:
         
         pygame.quit()
 
-
-    def draw_steering(self):
-        pass
-
-    def generate_map(self):
-        pass
-
     def generate_velocity_monitor(self):
         pygame.draw.line(self.SCREEN, (0, 125, 255), 
                          tuple(self.robot.position.astype(int)), 
@@ -265,7 +292,7 @@ class Simulator:
    
         for i, speed in enumerate(display_motor): 
             if i < 3:
-                text = f"Motor {i + 1}: {speed:.3f}"
+                text = f"Motor {i + 1}: {speed:.5f}"
             else:
                 text = f"Angle difference: {speed:.2f}"
 
@@ -294,7 +321,7 @@ if __name__ == "__main__":
     ])
 
     robot = FukuroBot()
-    # print(path.shape)
+
     robot.set_path(path=path2, random=True)
 
     seeker = FukuroSeeker()
