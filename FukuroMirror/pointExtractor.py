@@ -95,5 +95,5 @@ def highlight_selected_color(image_path, output_csv='highlighted_points.csv'):
     cv2.destroyAllWindows()
 
 # Example usage
-image_path = 'double_dotted_my_photo-21.png'  # Replace with your image path
-highlight_selected_color(image_path)
+image_path = 'dataset/real_photo.png'  
+highlight_selected_color(image_path, output_csv="real_test.csv")
