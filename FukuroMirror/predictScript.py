@@ -10,7 +10,7 @@ def predict_distance(model, pixel_x, pixel_y):
 
 if __name__ == "__main__":
     # Load the model
-    with open("models/gpr_model.pkl", "rb") as file:
+    with open("models/best_model.pkl", "rb") as file:
         gpr_loaded = pickle.load(file)
     print("Model loaded successfully!")
 
