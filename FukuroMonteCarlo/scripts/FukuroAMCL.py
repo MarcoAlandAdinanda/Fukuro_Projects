@@ -1,3 +1,4 @@
+
 import numpy as np
 import math
 import matplotlib.pyplot as plt
@@ -19,8 +20,8 @@ class AMCL:
         if initial_pose:
             x, y = initial_pose
             for _ in range(num_particles):
-                noise_x = np.random.normal(x, 0.1)
-                noise_y = np.random.normal(y, 0.1)
+                noise_x = np.random.normal(x, 1)
+                noise_y = np.random.normal(y, 1)
                 self.particles.append(Particle(noise_x, noise_y, 1.0/num_particles))
 
     def predict(self, u, noise):
@@ -73,7 +74,7 @@ class AMCL:
                         for i in indexes]
         self.particles = new_particles
 
-    def get_estimated_pose(self):
+    def get_estimated_pose(self): # output odometry
         x = sum(p.x * p.weight for p in self.particles)
         y = sum(p.y * p.weight for p in self.particles)
         return (x, y)
@@ -158,11 +159,40 @@ def robot_sin_movement():
     return initial_pose, movement_control
 
 if __name__ == "__main__":
+    # landmarks = {
+    #     # ntar diganti pake line detection
+    #     0: (5.0, 5.0),
+    #     1: (5.0, -5.0),
+    #     2: (-5.0, 5.0),
+    #     3: (-5.0, -5.0),
+    # }
+
     landmarks = {
-        0: (5.0, 5.0),
-        1: (5.0, -5.0),
-        2: (-5.0, 5.0),
-        3: (-5.0, -5.0),
+        0: (-10.0, -10.0),
+        1: (-10.0, -5.0),
+        2: (-10.0, 0.0),
+        3: (-10.0, 5.0),
+        4: (-10.0, 10.0),
+        5: (-5.0, -10.0),
+        6: (-5.0, -5.0),
+        7: (-5.0, 0.0),
+        8: (-5.0, 5.0),
+        9: (-5.0, 10.0),
+        10: (0.0, -10.0),
+        11: (0.0, -5.0),
+        12: (0.0, 0.0),
+        13: (0.0, 5.0),
+        14: (0.0, 10.0),
+        15: (5.0, -10.0),
+        16: (5.0, -5.0),
+        17: (5.0, 0.0),
+        18: (5.0, 5.0),
+        19: (5.0, 10.0),
+        20: (10.0, -10.0),
+        21: (10.0, -5.0),
+        22: (10.0, 0.0),
+        23: (10.0, 5.0),
+        24: (10.0, 10.0),
     }
 
     robot_pose, movement_control = robot_sin_movement()
@@ -180,4 +210,5 @@ if __name__ == "__main__":
         vis.true_pose = robot_pose
         vis.update_plot()
 
+    plt.show()
     plt.show()
